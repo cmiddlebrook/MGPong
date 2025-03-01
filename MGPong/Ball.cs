@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -11,14 +12,17 @@ class Ball
     private Vector2 _position;
     private Vector2 _velocity;
     private Texture2D _texture;
+    private SoundEffect _paddleHitFx;
+    private SoundEffect _wallHitFx;
     private int _size;
+    private int _speed = 300;
     private readonly Random _rand = new Random();
 
-    private const int MOVE_SPEED = 300;
-
-    public Ball(Rectangle playArea)
+    public Ball(Rectangle playArea, SoundEffect paddleHit, SoundEffect wallHit)
     {
         _playArea = playArea;
+        _paddleHitFx = paddleHit;
+        _wallHitFx = wallHit;
     }
 
     public void SetTexture(Texture2D tx)
@@ -35,13 +39,13 @@ class Ball
 
         _boundingRect = new Rectangle((int)_position.X, (int)_position.Y, _size, _size);
 
-        // For random horizontal direction (left or right)
         _velocity.X = _rand.Next(2) == 0 ? -100f : 100f;
 
-        // For random vertical velocity (between -50 and 50)
-        _velocity.Y = (float)(_rand.Next(-50, 51));
+        _velocity.Y = (float)(_rand.Next(10, 50));
+        _velocity.Y *= _rand.Next(2) == 0 ? 1 : -1;
+
         _velocity.Normalize();
-        _velocity *= MOVE_SPEED;
+        _velocity *= _speed;
 
     }
     public void Serve()
@@ -73,12 +77,15 @@ class Ball
         if (_position.Y < _playArea.Top || _position.Y > _playArea.Bottom - _size)
         {
             _velocity.Y *= -1;
+            _wallHitFx.Play(0.4f, 0, 0);
         }
     }
 
     public void BounceOffPaddle()
     {
-        _velocity.X *= -1;
+        _velocity.X *= -1; // Reverse X direction
+        _velocity *= 1.1f; // Increase speed while maintaining direction
+        _paddleHitFx.Play();
     }
 
     public void Draw(SpriteBatch sb)

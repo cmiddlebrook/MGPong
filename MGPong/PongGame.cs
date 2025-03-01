@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -8,25 +9,24 @@ namespace MGPong;
 
 public class PongGame : Game
 {
-    private const float YREACT = 20.0f;
+    private const float YREACT = 5.0f;
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private SpriteFont _FPSfont = null;
     private Random _rand = new Random();
+    private int _fps = 0;
     private Rectangle _playArea;
-
     private Texture2D _board;
-    private Texture2D _scoreBar;
-    private SpriteFont _scoreFont;
+    private ScoreBar _scoreBar;
     private Paddle _playerPaddle;
     private Paddle _aiPaddle;
-    private int _aiSpeed = 300;
+    private SoundEffect _scoreFx;
+    private int _aiSpeed = 200;
     private Ball _ball;
     private int _playerScore = 0;
     private int _aiPlayerScore = 0;
     private int _winScore = 3;
-    private Vector2 _playerScorePos;
-    private Vector2 _aiPlayerScorePos;
 
     //public enum GameState { Idle, Start, Play, CheckEnd }
     //private GameState _gameState;
@@ -63,7 +63,8 @@ public class PongGame : Game
         //Globals.pixel.SetData<Color>([Color.White]);
 
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _scoreFont = Content.Load<SpriteFont>("Score");
+        _FPSfont = Content.Load<SpriteFont>("Fonts/FPS");
+        LoadSoundFx();
         LoadBackgroundElements();
         LoadPaddles();
         LoadBall();
@@ -71,24 +72,22 @@ public class PongGame : Game
 
     private void LoadBackgroundElements()
     {
-        _board = Content.Load<Texture2D>("Board");
-        _scoreBar = Content.Load<Texture2D>("ScoreBar");
-        _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
-        _playerScorePos = new Vector2(_scoreBar.Width + 20, 0);
-        _aiPlayerScorePos = new Vector2(_board.Width - _scoreBar.Width - 32, 0);
+        _board = Content.Load<Texture2D>("Textures/Board");
+        _scoreBar = new ScoreBar(Content.Load<Texture2D>("Textures/ScoreBar"), Content.Load<SpriteFont>("Fonts/Score"), _board.Width);
+        _playArea = new Rectangle(0, _scoreBar.getHeight(), _board.Width, _board.Height);
 
         _graphics.PreferredBackBufferWidth = _board.Width;
-        _graphics.PreferredBackBufferHeight = _scoreBar.Height + _board.Height;
+        _graphics.PreferredBackBufferHeight = _scoreBar.getHeight() + _board.Height;
         _graphics.ApplyChanges();
     }
 
     private void LoadPaddles()
     {
-        Texture2D _playerPaddleTX = Content.Load<Texture2D>("LeftPaddle");
+        Texture2D _playerPaddleTX = Content.Load<Texture2D>("Textures/LeftPaddle");
         _playerPaddle = new Paddle(_playArea, 10);
-        _playerPaddle.SetTexture(Content.Load<Texture2D>("LeftPaddle"));
+        _playerPaddle.SetTexture(_playerPaddleTX);
 
-        Texture2D aiPaddleTX = Content.Load<Texture2D>("RightPaddle");
+        Texture2D aiPaddleTX = Content.Load<Texture2D>("Textures/RightPaddle");
         _aiPaddle = new Paddle(_playArea, _playArea.Width - aiPaddleTX.Width - 10);
         _aiPaddle.SetTexture(aiPaddleTX);
     }
@@ -96,14 +95,21 @@ public class PongGame : Game
 
     private void LoadBall()
     {
-        _ball = new Ball(_playArea);
-        _ball.SetTexture(Content.Load<Texture2D>("WhiteBall"));
+        _ball = new Ball(_playArea, Content.Load<SoundEffect>("SoundFx/PaddleHit"), Content.Load<SoundEffect>("SoundFx/WallHit"));
+        _ball.SetTexture(Content.Load<Texture2D>("Textures/WhiteBall"));
     }
+
+    private void LoadSoundFx()
+    {
+        _scoreFx = Content.Load<SoundEffect>("SoundFx/Score");
+    }
+
     protected override void Update(GameTime gt)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || IsKeyDown(Keys.Escape))
             Exit();
 
+        UpdateFPSDisplay(gt);
         _ball.Update(gt);
         HandlePlayerMovement(gt);
         MoveAIPlayer(gt);
@@ -113,31 +119,38 @@ public class PongGame : Game
         base.Update(gt);
     }
 
+    protected void UpdateFPSDisplay(GameTime gt)
+    {
+        _fps = (int) Math.Round(1 / gt.ElapsedGameTime.TotalSeconds);
+    }
+
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);     
 
         _spriteBatch.Begin();
-        DrawBackgroundElements();
-        DrawScores();
+        DrawScoreBar();
+        DrawBoard();
+        DrawFPS();
         DrawPaddlesAndBall();
         _spriteBatch.End();
 
         base.Draw(gameTime);
     }
 
-    private void DrawBackgroundElements()
+    private void DrawScoreBar()
     {
-        _spriteBatch.Draw(_scoreBar, new Vector2(0, 0), Color.White);
-        _spriteBatch.Draw(_scoreBar, new Vector2(_playArea.Width - _scoreBar.Width, 0), null, Color.White,
-            0f, new Vector2(0, 0), 1f, SpriteEffects.FlipHorizontally, 0f);
+        _scoreBar.Draw(_spriteBatch, _playerScore, _aiPlayerScore);
+    }
+
+    private void DrawBoard()
+    {
         _spriteBatch.Draw(_board, _playArea, Color.White);
     }
 
-    private void DrawScores()
+    private void DrawFPS()
     {
-        _spriteBatch.DrawString(_scoreFont, $"{_playerScore}", _playerScorePos, Color.White);
-        _spriteBatch.DrawString(_scoreFont, $"{_aiPlayerScore}", _aiPlayerScorePos, Color.White);
+        _spriteBatch.DrawString(_FPSfont, $"FPS: {_fps}", new Vector2(4,8), Color.White);
     }
 
     private void DrawPaddlesAndBall()
@@ -188,6 +201,7 @@ public class PongGame : Game
 
     protected void ResetGame()
     {
+        _scoreFx.Play();
         _ball.Reset();
         _aiPaddle.Reset();
         _playerPaddle.Reset();
