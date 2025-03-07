@@ -3,33 +3,28 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using static System.Net.Mime.MediaTypeNames;
+using CALIMOE;
 
 namespace MGPong;
 
-public class PongGame : Game
+public class PongGame : Calimoe
 {
     private const float YREACT = 5.0f;
 
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-    private SpriteFont _FPSfont = null;
+    private TextObject _titleObj = null;
     private Random _rand = new Random();
-    private int _fps = 0;
     private Rectangle _playArea;
     private Texture2D _board;
     private ScoreBar _scoreBar;
     private Paddle _playerPaddle;
     private Paddle _aiPaddle;
     private SoundEffect _scoreFx;
-    private int _aiSpeed = 200;
+    private int _aiSpeed = 100;
     private Ball _ball;
     private int _playerScore = 0;
     private int _aiPlayerScore = 0;
-    private int _winScore = 3;
+    private bool _paused = true;
 
-    //public enum GameState { Idle, Start, Play, CheckEnd }
-    //private GameState _gameState;
 
     public PongGame()
     {
@@ -41,14 +36,10 @@ public class PongGame : Game
         //_graphics.IsFullScreen = true;
         //_graphics.ApplyChanges();
 
-        _graphics = new GraphicsDeviceManager(this);
 
-        Content.RootDirectory = "Content";
         Window.AllowUserResizing = false;
-        Window.Title = "MG 01 - Pong";
-        IsMouseVisible = true;
+        Window.Title = "Game #1 - MG Pong";
 
-        //_gameState = GameState.Idle;
     }
 
     protected override void Initialize()
@@ -58,16 +49,18 @@ public class PongGame : Game
 
     protected override void LoadContent()
     {
-        // this was the hack to create a 1 pixel texture for drawing simple shapes
-        //Globals.pixel = new Texture2D(GraphicsDevice, 1, 1);
-        //Globals.pixel.SetData<Color>([Color.White]);
+        base.LoadContent();
 
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _FPSfont = Content.Load<SpriteFont>("Fonts/FPS");
         LoadSoundFx();
+        LoadFonts();
         LoadBackgroundElements();
         LoadPaddles();
         LoadBall();
+    }
+
+    private void LoadFonts()
+    {
+        _titleObj = new TextObject(Content.Load<SpriteFont>("Fonts/Title"));
     }
 
     private void LoadBackgroundElements()
@@ -95,8 +88,10 @@ public class PongGame : Game
 
     private void LoadBall()
     {
-        _ball = new Ball(_playArea, Content.Load<SoundEffect>("SoundFx/PaddleHit"), Content.Load<SoundEffect>("SoundFx/WallHit"));
-        _ball.SetTexture(Content.Load<Texture2D>("Textures/WhiteBall"));
+        _ball = new Ball(   _playArea, 
+                            Content.Load<Texture2D>("Textures/WhiteBall"), 
+                            Content.Load<SoundEffect>("SoundFx/PaddleHit"), 
+                            Content.Load<SoundEffect>("SoundFx/WallHit"));
     }
 
     private void LoadSoundFx()
@@ -106,36 +101,45 @@ public class PongGame : Game
 
     protected override void Update(GameTime gt)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || IsKeyDown(Keys.Escape))
-            Exit();
-
-        UpdateFPSDisplay(gt);
-        _ball.Update(gt);
-        HandlePlayerMovement(gt);
-        MoveAIPlayer(gt);
-        CheckPaddleCollision();
-        CheckPointScored();
+        if (_paused)
+        {
+            WaitForStart();
+        }
+        else
+        {
+            _ball.Update(gt);
+            HandlePlayerMovement(gt);
+            MoveAIPlayer(gt);
+            CheckPaddleCollision();
+            CheckPointScored();
+        }
 
         base.Update(gt);
     }
 
-    protected void UpdateFPSDisplay(GameTime gt)
-    {
-        _fps = (int) Math.Round(1 / gt.ElapsedGameTime.TotalSeconds);
-    }
 
-    protected override void Draw(GameTime gameTime)
+
+    protected override void Draw(GameTime gt)
     {
         GraphicsDevice.Clear(Color.Black);     
 
         _spriteBatch.Begin();
-        DrawScoreBar();
-        DrawBoard();
-        DrawFPS();
-        DrawPaddlesAndBall();
+
+        if (_paused)
+        {
+            _titleObj.DrawText(_spriteBatch, "MG Pong", TextObject.CenterText.Horizontal, 50);
+            _titleObj.DrawText(_spriteBatch, "Press [SPACE] to start!", TextObject.CenterText.Both);
+        }
+        else
+        {
+            DrawScoreBar();
+            DrawBoard();
+            DrawPaddlesAndBall();
+        }
+
         _spriteBatch.End();
 
-        base.Draw(gameTime);
+        base.Draw(gt);
     }
 
     private void DrawScoreBar()
@@ -146,11 +150,6 @@ public class PongGame : Game
     private void DrawBoard()
     {
         _spriteBatch.Draw(_board, _playArea, Color.White);
-    }
-
-    private void DrawFPS()
-    {
-        _spriteBatch.DrawString(_FPSfont, $"FPS: {_fps}", new Vector2(4,8), Color.White);
     }
 
     private void DrawPaddlesAndBall()
@@ -167,7 +166,7 @@ public class PongGame : Game
 
     protected void CheckPaddleCollision()
     {
-        Rectangle ballRect = _ball.getBoundingRect();
+        Rectangle ballRect = _ball.Bounds;
         if (ballRect.Intersects(_playerPaddle.getBoundingRect()) || ballRect.Intersects(_aiPaddle.getBoundingRect()))
         {
             _ball.BounceOffPaddle();
@@ -176,7 +175,7 @@ public class PongGame : Game
 
     protected void CheckPointScored()
     {
-        Rectangle ballRect = _ball.getBoundingRect();
+        Rectangle ballRect = _ball.Bounds;
         if (ballRect.X < 0)
         {
             AIPlayerScored();
@@ -219,9 +218,17 @@ public class PongGame : Game
         }
     }
 
+    protected void WaitForStart()
+    {
+        if (IsKeyDown(Keys.Space))
+        {
+            _paused = false;
+        }
+    }
+
     protected void MoveAIPlayer(GameTime gt)
     {
-        float ballY = _ball.getY();
+        float ballY = _ball.Bounds.Y;
         float paddleY = _aiPaddle.getY();
 
         if (Math.Abs(ballY - paddleY) > YREACT)
