@@ -18,7 +18,8 @@ public class PongGame : Calimoe
     private ScoreBar _scoreBar;
     private Paddle _playerPaddle;
     private Paddle _aiPaddle;
-    private SoundEffect _scoreFx;
+    private SoundEffect _winFx;
+    private SoundEffect _loseFx;
     private int _aiSpeed = 100;
     private Ball _ball;
     private int _playerScore = 0;
@@ -28,73 +29,36 @@ public class PongGame : Calimoe
 
     public PongGame()
     {
-        //this.TargetElapsedTime = new TimeSpan(333333); // 30 FPS
-
-        // full screen mode
-        //_graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-        //_graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-        //_graphics.IsFullScreen = true;
-        //_graphics.ApplyChanges();
-
-
         Window.AllowUserResizing = false;
         Window.Title = "Game #1 - MG Pong";
-
+        _showFPS = false;
     }
 
-    protected override void Initialize()
-    {        
-        base.Initialize();
-    }
 
     protected override void LoadContent()
     {
         base.LoadContent();
 
-        LoadSoundFx();
-        LoadFonts();
-        LoadBackgroundElements();
-        LoadPaddles();
-        LoadBall();
-    }
-
-    private void LoadFonts()
-    {
-        _titleObj = new TextObject(Content.Load<SpriteFont>("Fonts/Title"));
-    }
-
-    private void LoadBackgroundElements()
-    {
         _board = Content.Load<Texture2D>("Textures/Board");
+        _winFx = Content.Load<SoundEffect>("SoundFx/WinPoint");
+        _loseFx = Content.Load<SoundEffect>("SoundFx/LosePoint");
         _scoreBar = new ScoreBar(Content.Load<Texture2D>("Textures/ScoreBar"), Content.Load<SpriteFont>("Fonts/Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
+        _titleObj = new TextObject(Content.Load<SpriteFont>("Fonts/Title"));
+        _playerPaddle = new Paddle(_playArea, Content.Load<Texture2D>("Textures/LeftPaddle"), 4);
+
+        Texture2D aiPaddleTX = Content.Load<Texture2D>("Textures/RightPaddle");
+        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
+        _ball = new Ball(_playArea,
+                    Content.Load<Texture2D>("Textures/WhiteBall"),
+                    Content.Load<SoundEffect>("SoundFx/PaddleHit"),
+                    Content.Load<SoundEffect>("SoundFx/PaddleHit2"));
 
         _graphics.PreferredBackBufferWidth = _board.Width;
         _graphics.PreferredBackBufferHeight = _scoreBar.Height + _board.Height;
         _graphics.ApplyChanges();
     }
 
-    private void LoadPaddles()
-    {
-        _playerPaddle = new Paddle(_playArea, Content.Load<Texture2D>("Textures/LeftPaddle"), 4);
-
-        Texture2D aiPaddleTX = Content.Load<Texture2D>("Textures/RightPaddle");
-        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
-    }
-
-
-    private void LoadBall()
-    {
-        _ball = new Ball(   _playArea, 
-                            Content.Load<Texture2D>("Textures/WhiteBall"), 
-                            Content.Load<SoundEffect>("SoundFx/PaddleHit"), 
-                            Content.Load<SoundEffect>("SoundFx/WallHit"));
-    }
-
-    private void LoadSoundFx()
-    {
-        _scoreFx = Content.Load<SoundEffect>("SoundFx/Score");
-    }
 
     protected override void Update(GameTime gt)
     {
@@ -129,9 +93,11 @@ public class PongGame : Calimoe
         }
         else
         {
-            DrawScoreBar();
-            DrawBoard();
-            DrawPaddlesAndBall();
+            _scoreBar.Draw(_spriteBatch, _playerScore, _aiPlayerScore);
+            _spriteBatch.Draw(_board, _playArea, Color.White);
+            _playerPaddle.Draw(_spriteBatch);
+            _aiPaddle.Draw(_spriteBatch);
+            _ball.Draw(_spriteBatch);
         }
 
         _spriteBatch.End();
@@ -139,22 +105,7 @@ public class PongGame : Calimoe
         base.Draw(gt);
     }
 
-    private void DrawScoreBar()
-    {
-        _scoreBar.Draw(_spriteBatch, _playerScore, _aiPlayerScore);
-    }
 
-    private void DrawBoard()
-    {
-        _spriteBatch.Draw(_board, _playArea, Color.White);
-    }
-
-    private void DrawPaddlesAndBall()
-    {
-        _playerPaddle.Draw(_spriteBatch);
-        _aiPaddle.Draw(_spriteBatch);
-        _ball.Draw(_spriteBatch);
-    }
 
     protected bool IsKeyDown(Keys key)
     {
@@ -186,18 +137,19 @@ public class PongGame : Calimoe
     protected void AIPlayerScored()
     {
         _aiPlayerScore++;
+        _loseFx.Play();
         ResetGame();
     }
 
     protected void PlayerScored()
     {
         _playerScore++;
+        _winFx.Play();
         ResetGame();
     }
 
     protected void ResetGame()
     {
-        _scoreFx.Play();
         _ball.Reset();
         _aiPaddle.Reset();
         _playerPaddle.Reset();

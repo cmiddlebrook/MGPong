@@ -34,23 +34,41 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Title.spritefont
 
+#begin Music/PlayMusic.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/PlayMusic.ogg
+
+#begin Music/TitleMusic.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/TitleMusic.ogg
+
+#begin SoundFx/LosePoint.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFx/LosePoint.wav
+
 #begin SoundFx/PaddleHit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundFx/PaddleHit.wav
 
-#begin SoundFx/Score.wav
+#begin SoundFx/PaddleHit2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SoundFx/Score.wav
+/build:SoundFx/PaddleHit2.wav
 
-#begin SoundFx/WallHit.wav
+#begin SoundFx/WinPoint.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SoundFx/WallHit.wav
+/build:SoundFx/WinPoint.wav
 
 #begin Textures/Board.png
 /importer:TextureImporter
