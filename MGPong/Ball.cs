@@ -13,8 +13,8 @@ class Ball
     private SoundEffect _paddleHitFx;
     private SoundEffect _wallHitFx;
     private int _size;
-    private int _speed = 400;
-    private float _speedIncrease = 20f;
+    private int _speed = 300;
+    private float _speedIncrease = 30f;
     private readonly Random _rand = new Random();
 
     public Rectangle Bounds => _sprite.Bounds;
@@ -44,13 +44,12 @@ class Ball
 
     public void Update(GameTime gt)
     {
-        _sprite.Update(gt);
-
         if (_sprite.Position.Y < _playArea.Top || _sprite.Position.Y > _playArea.Bottom - _size)
         {
             _sprite.ReverseYDirection();
             _wallHitFx.Play(0.4f, 0, 0);
         }
+        _sprite.Update(gt);
     }
 
     public void BounceOffPaddle()
@@ -63,6 +62,7 @@ class Ball
     public void Reset()
     {
         _sprite.Reset();
+        _sprite.Velocity = getRandomVelocity();
     }
 
     public void Draw(SpriteBatch sb)

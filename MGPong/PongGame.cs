@@ -76,13 +76,10 @@ public class PongGame : Calimoe
 
     private void LoadPaddles()
     {
-        Texture2D _playerPaddleTX = Content.Load<Texture2D>("Textures/LeftPaddle");
-        _playerPaddle = new Paddle(_playArea, 10);
-        _playerPaddle.SetTexture(_playerPaddleTX);
+        _playerPaddle = new Paddle(_playArea, Content.Load<Texture2D>("Textures/LeftPaddle"), 10);
 
         Texture2D aiPaddleTX = Content.Load<Texture2D>("Textures/RightPaddle");
-        _aiPaddle = new Paddle(_playArea, _playArea.Width - aiPaddleTX.Width - 10);
-        _aiPaddle.SetTexture(aiPaddleTX);
+        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 10);
     }
 
 
@@ -167,7 +164,7 @@ public class PongGame : Calimoe
     protected void CheckPaddleCollision()
     {
         Rectangle ballRect = _ball.Bounds;
-        if (ballRect.Intersects(_playerPaddle.getBoundingRect()) || ballRect.Intersects(_aiPaddle.getBoundingRect()))
+        if (ballRect.Intersects(_playerPaddle.Bounds) || ballRect.Intersects(_aiPaddle.Bounds))
         {
             _ball.BounceOffPaddle();
         }
@@ -229,7 +226,7 @@ public class PongGame : Calimoe
     protected void MoveAIPlayer(GameTime gt)
     {
         float ballY = _ball.Bounds.Y;
-        float paddleY = _aiPaddle.getY();
+        float paddleY = _aiPaddle.Bounds.Y;
 
         if (Math.Abs(ballY - paddleY) > YREACT)
         {
