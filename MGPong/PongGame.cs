@@ -67,19 +67,19 @@ public class PongGame : Calimoe
     {
         _board = Content.Load<Texture2D>("Textures/Board");
         _scoreBar = new ScoreBar(Content.Load<Texture2D>("Textures/ScoreBar"), Content.Load<SpriteFont>("Fonts/Score"), _board.Width);
-        _playArea = new Rectangle(0, _scoreBar.getHeight(), _board.Width, _board.Height);
+        _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
 
         _graphics.PreferredBackBufferWidth = _board.Width;
-        _graphics.PreferredBackBufferHeight = _scoreBar.getHeight() + _board.Height;
+        _graphics.PreferredBackBufferHeight = _scoreBar.Height + _board.Height;
         _graphics.ApplyChanges();
     }
 
     private void LoadPaddles()
     {
-        _playerPaddle = new Paddle(_playArea, Content.Load<Texture2D>("Textures/LeftPaddle"), 10);
+        _playerPaddle = new Paddle(_playArea, Content.Load<Texture2D>("Textures/LeftPaddle"), 4);
 
         Texture2D aiPaddleTX = Content.Load<Texture2D>("Textures/RightPaddle");
-        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 10);
+        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
     }
 
 

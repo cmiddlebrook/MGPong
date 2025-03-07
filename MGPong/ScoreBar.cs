@@ -1,39 +1,31 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CALIMOE;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MGPong;
 
 class ScoreBar
 {
-    private Texture2D _texture = null;
-    private SpriteFont _font = null;
-    private Vector2 _leftScorePos;
-    private Vector2 _rightScorePos;
-    private int _boardWidth = 0;
+    private TextObject _leftScore;
+    private TextObject _rightScore;
+    private SpriteObject _leftSprite;
+    private SpriteObject _rightSprite;
 
-    public ScoreBar(Texture2D tx, SpriteFont font, int boardWidth)
-    {        
-        _texture = tx;
-        _font = font;
+    public int Height => _leftSprite.Bounds.Height;
 
-        _boardWidth = boardWidth;
-        _leftScorePos = new Vector2(_texture.Width + 20, 0);
-        _rightScorePos = new Vector2(_boardWidth - _texture.Width - 32, 0);
-
-    }
-
-    public int getHeight()
+    public ScoreBar(Texture2D texture, SpriteFont font, int boardWidth)
     {
-        return _texture.Height;
+        _leftScore = new TextObject(font, "", new Vector2(texture.Width + 20, 0));
+        _rightScore = new TextObject(font, "", new Vector2((boardWidth / 2) + 30, 0));
+        _leftSprite = new SpriteObject(texture, Vector2.Zero, Vector2.Zero);
+        _rightSprite = new SpriteObject(texture, new Vector2(boardWidth - texture.Width, 0), Vector2.Zero);
     }
+
     public void Draw(SpriteBatch sb, int leftScore, int rightScore)
     {
-        sb.Draw(_texture, new Vector2(0, 0), Color.White);
-        sb.Draw(_texture, new Vector2(_boardWidth - _texture.Width, 0), null, Color.White,
-            0f, new Vector2(0, 0), 1f, SpriteEffects.FlipHorizontally, 0f);
-
-        sb.DrawString(_font, $"{leftScore}", _leftScorePos, Color.White);
-        sb.DrawString(_font, $"{rightScore}", _rightScorePos, Color.White);
-
+        _leftSprite.Draw(sb);
+        _rightSprite.DrawFlippedHorizontally(sb);
+        _leftScore.DrawText(sb, $"{leftScore}");
+        _rightScore.DrawText(sb, $"{rightScore}");
     }
 }
