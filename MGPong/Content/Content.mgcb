@@ -13,6 +13,54 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Fallback/missing-tx128.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Fallback/missing-tx128.png
+
+#begin Fallback/missing-tx32.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Fallback/missing-tx32.png
+
+#begin Fallback/missing-tx64.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Fallback/missing-tx64.png
+
+#begin Fallback/silent-fx.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Fallback/silent-fx.wav
+
+#begin Fallback/silent-song.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Fallback/silent-song.ogg
+
 #begin Fonts/FPS.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -34,17 +82,17 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Title.spritefont
 
-#begin Music/PlayMusic.ogg
+#begin Music/IcecapMountains.ogg
 /importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/PlayMusic.ogg
+/build:Music/IcecapMountains.ogg
 
-#begin Music/TitleMusic.ogg
+#begin Music/NaturalLife.ogg
 /importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/TitleMusic.ogg
+/build:Music/NaturalLife.ogg
 
 #begin SoundFx/LosePoint.wav
 /importer:WavImporter

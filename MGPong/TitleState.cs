@@ -19,11 +19,15 @@ public class TitleState : GameState
 
     public override void LoadContent()
     {
-        _titleMusic = _am.LoadMusic("TitleMusic");
+        _titleMusic = _am.LoadMusic("NaturalLife");
+        _titleObj = new TextObject(_am.LoadFont("Title"));
+    }
+
+    public override void Enter()
+    {
         MediaPlayer.Volume = 0.3f;
         MediaPlayer.Play(_titleMusic);
-
-        _titleObj = new TextObject(_am.LoadFont("Title"));
+        base.Enter();
     }
 
     public override void HandleInput(GameTime gt)

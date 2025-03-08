@@ -35,7 +35,7 @@ public class PlayState : GameState
     {
         _winFx = _am.LoadSoundFx("WinPoint");
         _loseFx = _am.LoadSoundFx("LosePoint");
-        _playMusic = _am.LoadMusic("PlayMusic");
+        _playMusic = _am.LoadMusic("IcecapMountains");
 
         _board = _am.LoadTexture("Board");
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
@@ -47,6 +47,12 @@ public class PlayState : GameState
 
     }
 
+    public override void Enter()
+    {
+        MediaPlayer.Volume = 0.3f;
+        MediaPlayer.Play(_playMusic);
+        base.Enter();
+    }
     public override void HandleInput(GameTime gt)
     {
         base.HandleInput(gt);

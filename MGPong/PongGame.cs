@@ -16,6 +16,7 @@ public class PongGame : Calimoe
         Window.AllowUserResizing = false;
         Window.Title = "Game #1 - MG Pong";
         _showFPS = false;
+        _fallbackTextureSize = 64;
     }
 
 
@@ -46,7 +47,6 @@ public class PongGame : Calimoe
         _sm.Update(gt);
 
     }
-
 
 
     protected override void Draw(GameTime gt)
