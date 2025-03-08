@@ -20,8 +20,9 @@ public class PlayState : GameState
     private SoundEffect _winFx;
     private SoundEffect _loseFx;
     private Song _playMusic;
-    private float _aiDelay = 5.0f;
-    private int _aiSpeed = 100;
+    private int _playerSpeed = 300;
+    private int _aiSpeed = 50;
+    private int _aiSpeedIncrease = 25;
     private Ball _ball;
     private int _playerScore = 0;
     private int _aiPlayerScore = 0;
@@ -38,18 +39,19 @@ public class PlayState : GameState
         _playMusic = _am.LoadMusic("IcecapMountains");
 
         _board = _am.LoadTexture("Board");
+        int maxPaddleHeight = (int)(_board.Height * .75);
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
-        _playerPaddle = new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4);
+        _playerPaddle = new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4, maxPaddleHeight);
         Texture2D aiPaddleTX = _am.LoadTexture("RightPaddle");
-        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
+        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4, maxPaddleHeight);
         _ball = new Ball(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("PaddleHit"), _am.LoadSoundFx("PaddleHit2"));
 
     }
 
     public override void Enter()
     {
-        MediaPlayer.Volume = 0.3f;
+        MediaPlayer.Volume = 0.2f;
         MediaPlayer.Play(_playMusic);
         base.Enter();
     }
@@ -59,12 +61,12 @@ public class PlayState : GameState
 
         if (_ih.KeyDown(Keys.W))
         {
-            _playerPaddle.MoveUp(gt);
+            _playerPaddle.MoveUp(gt, _playerSpeed);
         }
 
         else if (_ih.KeyDown(Keys.S))
         {
-            _playerPaddle.MoveDown(gt);
+            _playerPaddle.MoveDown(gt, _playerSpeed);
         }
 
         else if (_ih.KeyPressed(Keys.P))
@@ -117,16 +119,13 @@ public class PlayState : GameState
         float ballY = _ball.Bounds.Y;
         float paddleY = _aiPaddle.Bounds.Y;
 
-        if (Math.Abs(ballY - paddleY) > _aiDelay)
+        if (ballY < paddleY)
         {
-            if (ballY < paddleY)
-            {
-                _aiPaddle.MoveUp(gt, _aiSpeed);
-            }
-            else if (ballY > paddleY)
-            {
-                _aiPaddle.MoveDown(gt, _aiSpeed);
-            }
+            _aiPaddle.MoveUp(gt, _aiSpeed);
+        }
+        else if (ballY > paddleY)
+        {
+            _aiPaddle.MoveDown(gt, _aiSpeed);
         }
     }
 
@@ -157,6 +156,8 @@ public class PlayState : GameState
         _playerScore++;
         _winFx.Play();
         ServeNewBall();
+        _aiSpeed += _aiSpeedIncrease;
+        _aiPaddle.Grow();
     }
 
     protected void AIPlayerScored()
@@ -170,7 +171,7 @@ public class PlayState : GameState
     {
         _ball.Reset();
         _playerPaddle.Reset();
-        _aiPaddle.Reset();
+        _aiPaddle.ResetPosition();
     }
 
 }

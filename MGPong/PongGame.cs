@@ -15,6 +15,7 @@ public class PongGame : Calimoe
     {
         Window.AllowUserResizing = false;
         Window.Title = "Game #1 - MG Pong";
+        MediaPlayer.IsRepeating = true;
         _showFPS = false;
         _fallbackTextureSize = 64;
     }

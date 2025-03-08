@@ -17,8 +17,8 @@ class ScoreBar
     {
         _leftScore = new TextObject(font, "", new Vector2(texture.Width + 20, 0));
         _rightScore = new TextObject(font, "", new Vector2((boardWidth / 2) + 30, 0));
-        _leftSprite = new SpriteObject(texture, Vector2.Zero, Vector2.Zero);
-        _rightSprite = new SpriteObject(texture, new Vector2(boardWidth - texture.Width, 0), Vector2.Zero);
+        _leftSprite = new SpriteObject(texture, Vector2.Zero, Vector2.Zero, Vector2.One);
+        _rightSprite = new SpriteObject(texture, new Vector2(boardWidth - texture.Width, 0), Vector2.Zero, Vector2.One);
     }
 
     public void Draw(SpriteBatch sb, int leftScore, int rightScore)
