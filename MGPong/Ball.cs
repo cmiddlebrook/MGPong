@@ -47,7 +47,7 @@ class Ball
         if (_sprite.Position.Y < _playArea.Top || _sprite.Position.Y > _playArea.Bottom - _size)
         {
             _sprite.ReverseYDirection();
-            _wallHitFx.Play(0.4f, 0, 0);
+            _wallHitFx.Play();
         }
         _sprite.Update(gt);
     }
