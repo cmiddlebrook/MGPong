@@ -13,8 +13,8 @@ class Ball
     private SoundEffect _paddleHitFx;
     private SoundEffect _wallHitFx;
     private int _size;
-    private int _speed = 400;
-    private float _speedIncrease = 40f;
+    private int _speed = 600;
+    private float _speedIncrease = 60f;
     private readonly Random _rand = new Random();
 
     public Rectangle Bounds => _sprite.Bounds;

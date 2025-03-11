@@ -11,6 +11,7 @@ public class TitleState : GameState
 {
     private TextObject _titleText;
     private TextObject _instructions;
+    private string _instructionsText;
     private Song _titleMusic;
 
     public TitleState(StateManager sm, AssetManager am, InputHelper ih) :base(sm, am, ih)
@@ -23,12 +24,20 @@ public class TitleState : GameState
         _titleMusic = _am.LoadMusic("NaturalLife");
         _titleText = new TextObject(_am.LoadFont("Title"));
         _instructions = new TextObject(_am.LoadFont("Instructions"));
+
+        _instructionsText += "\nYou control the left paddle, try to score points against the AI paddle,";
+        _instructionsText += "\n                 which gets better with each point scored!";
+        _instructionsText += "\n\n                           W - Move paddle up";
+        _instructionsText += "\n                           S - Move paddle down";
+        _instructionsText += "\n                           P - Pause the game";
+        _instructionsText += "\n                           ESCAPE - Return to title screen";
+        _instructionsText += "\n\n\n                       Press [SPACEBAR] to play!";
     }
 
     public override void Enter()
     {
         MediaPlayer.Volume = 0.3f;
-        MediaPlayer.Play(_titleMusic);
+        //MediaPlayer.Play(_titleMusic);
         base.Enter();
     }
 
@@ -51,12 +60,7 @@ public class TitleState : GameState
     public override void Draw(SpriteBatch sb)
     {
         _titleText.DrawText(sb, "MG Pong", TextObject.CenterText.Horizontal, 50);
-        _instructions.DrawText(sb, "W & S to control the paddle", TextObject.CenterText.Horizontal, 150);
-        _instructions.DrawText(sb, "P to pause the game", TextObject.CenterText.Horizontal, 200);
-        _instructions.DrawText(sb, "Escape to quit", TextObject.CenterText.Horizontal, 250);
-        _instructions.DrawText(sb, "AI paddle gets better with each point scored!", TextObject.CenterText.Horizontal, 300);
-        _instructions.DrawText(sb, "Press [SPACE] to play!", TextObject.CenterText.Horizontal, 400);
-
+        _instructions.DrawText(sb, _instructionsText, TextObject.CenterText.Horizontal, 150);
         base.Draw(sb);
     }
 }

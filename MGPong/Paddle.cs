@@ -13,6 +13,7 @@ public class Paddle
     private int _paddleLength = 0;
     private int _maxHeight = 0;
     private int _numBoosts = 0;
+    private int _maxNumBoosts = 10;
     private float _scaleFactor = 1.0f;
     private Vector2 _startPosition = Vector2.Zero;
 
@@ -55,12 +56,15 @@ public class Paddle
 
     public void Grow()
     {
-        _numBoosts++;
-        float scaleFactor = _numBoosts * 0.2f;
-        scaleFactor = Math.Min(scaleFactor, _maxHeight);
-        _paddleLength = (int)(_defaultPaddleLength * (1 + scaleFactor));
-        _startPosition.Y = (_playArea.Height - (_paddleLength / 2)) / 2;
-        _sprite.Scale = new Vector2(1, 1 + scaleFactor);
+        if (_numBoosts < _maxNumBoosts)
+        {
+            _numBoosts++;
+            float scaleFactor = _numBoosts * 0.15f;
+            scaleFactor = Math.Min(scaleFactor, _maxHeight);
+            _paddleLength = (int)(_defaultPaddleLength * (1 + scaleFactor));
+            _startPosition.Y = (_playArea.Height - (_paddleLength / 2)) / 2;
+            _sprite.Scale = new Vector2(1, 1 + scaleFactor);
+        }
     }
 
     public void Draw(SpriteBatch sb) 

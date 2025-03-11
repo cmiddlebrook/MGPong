@@ -21,7 +21,7 @@ public class PlayState : GameState
     private SoundEffect _loseFx;
     private Song _playMusic;
     private int _playerSpeed = 300;
-    private int _aiSpeed = 50;
+    private int _aiSpeed = 100;
     private int _aiSpeedIncrease = 25;
     private Ball _ball;
     private int _playerScore = 0;
@@ -38,7 +38,7 @@ public class PlayState : GameState
         _loseFx = _am.LoadSoundFx("LosePoint");
         _playMusic = _am.LoadMusic("IcecapMountains");
 
-        _board = _am.LoadTexture("Board");
+        _board = _am.LoadTexture("Board2");
         int maxPaddleHeight = (int)(_board.Height * .75);
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
@@ -52,7 +52,7 @@ public class PlayState : GameState
     public override void Enter()
     {
         MediaPlayer.Volume = 0.2f;
-        MediaPlayer.Play(_playMusic);
+        //MediaPlayer.Play(_playMusic);
         base.Enter();
     }
     public override void HandleInput(GameTime gt)
