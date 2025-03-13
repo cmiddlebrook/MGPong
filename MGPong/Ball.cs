@@ -14,8 +14,9 @@ class Ball
     private SoundEffect _paddleHitFx;
     private SoundEffect _wallHitFx;
     private int _size;
-    private int _speed = 500;
-    private float _speedIncrease = 50f;
+    private float _startSpeed = 400f;
+    private float _speed = 400f;
+    private float _speedIncrease = 40f;
     private readonly Random _rand = new Random();
 
     public Rectangle Bounds => _sprite.Bounds;
@@ -59,13 +60,15 @@ class Ball
     public void BounceOffPaddle(float angle)
     {
         _sprite.ReverseXDirection();
+        _speed += _speedIncrease;
+        //_sprite.AdjustSpeed(_speedIncrease);
         _sprite.Velocity = new Vector2(MathF.Cos(angle) * _speed * MathF.Sign(_sprite.Velocity.X), MathF.Sin(angle) * _speed);
-        _sprite.AdjustSpeed(_speedIncrease);
         _paddleHitFx.Play();
     }
 
-    public void Reset()
+    public void NewBall()
     {
+        _speed = _startSpeed;
         _sprite.Reset();
         _sprite.Velocity = getRandomVelocity();
     }

@@ -15,18 +15,15 @@ public class PlayState : GameState
     private Rectangle _playArea;
     private Texture2D _board;
     private ScoreBar _scoreBar;
-    private Paddle _playerPaddle;
-    private Paddle _aiPaddle;
+    private Player _player;
+    private AIPlayer _aiPlayer;
     private SoundEffect _winFx;
     private SoundEffect _loseFx;
     private Song _playMusic;
-    private int _playerSpeed = 300;
-    private int _aiSpeed = 100;
-    private int _aiSpeedIncrease = 25;
     private Ball _ball;
     private float _maxAngle = MathHelper.PiOver4;
-    private int _playerScore = 0;
-    private int _aiPlayerScore = 0;
+    private int _powerBallInterval = 10;
+    private float _powerBallTimer = 0f;
     private bool _paused = false;
     public PlayState(StateManager sm, AssetManager am, InputHelper ih) :base(sm, am, ih)
     {
@@ -43,9 +40,13 @@ public class PlayState : GameState
         int maxPaddleHeight = (int)(_board.Height * .40);
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
-        _playerPaddle = new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4, maxPaddleHeight);
+
+        _player = new Player(new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4, maxPaddleHeight), 300);
+
         Texture2D aiPaddleTX = _am.LoadTexture("RightPaddle");
-        _aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4, maxPaddleHeight);
+        Paddle aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4, maxPaddleHeight);
+        _aiPlayer = new AIPlayer(aiPaddle, 100, 25);
+
         _ball = new Ball(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("PaddleHit"), _am.LoadSoundFx("PaddleHit2"));
 
     }
@@ -62,12 +63,12 @@ public class PlayState : GameState
 
         if (_ih.KeyDown(Keys.W))
         {
-            _playerPaddle.MoveUp(gt, _playerSpeed);
+            _player.MoveUp(gt);
         }
 
         else if (_ih.KeyDown(Keys.S))
         {
-            _playerPaddle.MoveDown(gt, _playerSpeed);
+            _player.MoveDown(gt);
         }
 
         else if (_ih.KeyPressed(Keys.P))
@@ -87,7 +88,7 @@ public class PlayState : GameState
         if (!_paused)
         {
             _ball.Update(gt);
-            MoveAIPlayer(gt);
+            _aiPlayer.TrackBall(gt, _ball.Bounds);
             CheckPaddleCollision();
             CheckPointScored();
         }
@@ -98,9 +99,9 @@ public class PlayState : GameState
     public override void Draw(SpriteBatch sb)
     {
         sb.Draw(_board, _playArea, Color.White);
-        _scoreBar.Draw(sb, _playerScore, _aiPlayerScore);
-        _playerPaddle.Draw(sb);
-        _aiPaddle.Draw(sb);
+        _scoreBar.Draw(sb, _player.Score, _aiPlayer.Score);
+        _player.Draw(sb);
+        _aiPlayer.Draw(sb);
         _ball.Draw(sb);
 
         base.Draw(sb);
@@ -115,31 +116,16 @@ public class PlayState : GameState
         return _board.Bounds.Height + _scoreBar.Height;
     }
 
-    protected void MoveAIPlayer(GameTime gt)
-    {
-        float ballY = _ball.Bounds.Y;
-        float paddleY = _aiPaddle.Bounds.Y;
-
-        if (ballY < paddleY)
-        {
-            _aiPaddle.MoveUp(gt, _aiSpeed);
-        }
-        else if (ballY > paddleY)
-        {
-            _aiPaddle.MoveDown(gt, _aiSpeed);
-        }
-    }
-
     protected void CheckPaddleCollision()
     {
         Rectangle ballRect = _ball.Bounds;
-        if (ballRect.Intersects(_playerPaddle.Bounds))
+        if (ballRect.Intersects(_player.Paddle.Bounds))
         {
-            BounceBallOffPaddle(_playerPaddle);
+            BounceBallOffPaddle(_player.Paddle);
         }
-        else if (ballRect.Intersects(_aiPaddle.Bounds))
+        else if (ballRect.Intersects(_aiPlayer.Paddle.Bounds))
         {
-            BounceBallOffPaddle(_aiPaddle);
+            BounceBallOffPaddle(_aiPlayer.Paddle);
         }
     }
 
@@ -154,35 +140,25 @@ public class PlayState : GameState
         Rectangle ballRect = _ball.Bounds;
         if (ballRect.X < 0)
         {
-            AIPlayerScored();
+            _aiPlayer.Score++;
+            _loseFx.Play();
+            ServeNewBall();
         }
         else if (ballRect.X + ballRect.Width > _playArea.Width)
         {
-            PlayerScored();
-        }
+            _player.Score++;
+            _winFx.Play();
+            _aiPlayer.PowerUp();
+            ServeNewBall();
+        }        
     }
 
-    protected void PlayerScored()
-    {
-        _playerScore++;
-        _winFx.Play();
-        ServeNewBall();
-        _aiSpeed += _aiSpeedIncrease;
-        _aiPaddle.Grow();
-    }
-
-    protected void AIPlayerScored()
-    {
-        _aiPlayerScore++;
-        _loseFx.Play();
-        ServeNewBall();
-    }
 
     protected void ServeNewBall()
     {
-        _ball.Reset();
-        _playerPaddle.Reset();
-        _aiPaddle.ResetPosition();
+        _player.PrepForNewBall();
+        _aiPlayer.PrepForNewBall();
+        _ball.NewBall();
     }
 
 }

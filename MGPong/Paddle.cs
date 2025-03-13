@@ -36,7 +36,7 @@ public class Paddle
         _sprite.Reset();
     }
 
-    public void ResetPosition()
+    public void ResetPositionOnly()
     {        
         Vector2 scale = _sprite.Scale;
         _sprite.Reset();
