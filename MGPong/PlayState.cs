@@ -24,6 +24,7 @@ public class PlayState : GameState
     private int _aiSpeed = 100;
     private int _aiSpeedIncrease = 25;
     private Ball _ball;
+    private float _maxAngle = MathHelper.PiOver4;
     private int _playerScore = 0;
     private int _aiPlayerScore = 0;
     private bool _paused = false;
@@ -39,7 +40,7 @@ public class PlayState : GameState
         _playMusic = _am.LoadMusic("IcecapMountains");
 
         _board = _am.LoadTexture("Board2");
-        int maxPaddleHeight = (int)(_board.Height * .75);
+        int maxPaddleHeight = (int)(_board.Height * .40);
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
         _playerPaddle = new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4, maxPaddleHeight);
@@ -52,7 +53,7 @@ public class PlayState : GameState
     public override void Enter()
     {
         MediaPlayer.Volume = 0.2f;
-        //MediaPlayer.Play(_playMusic);
+        MediaPlayer.Play(_playMusic);
         base.Enter();
     }
     public override void HandleInput(GameTime gt)
@@ -132,10 +133,20 @@ public class PlayState : GameState
     protected void CheckPaddleCollision()
     {
         Rectangle ballRect = _ball.Bounds;
-        if (ballRect.Intersects(_playerPaddle.Bounds) || ballRect.Intersects(_aiPaddle.Bounds))
+        if (ballRect.Intersects(_playerPaddle.Bounds))
         {
-            _ball.BounceOffPaddle();
+            BounceBallOffPaddle(_playerPaddle);
         }
+        else if (ballRect.Intersects(_aiPaddle.Bounds))
+        {
+            BounceBallOffPaddle(_aiPaddle);
+        }
+    }
+
+    protected void BounceBallOffPaddle(Paddle paddle)
+    {
+        float relativeIntersectY = (_ball.CenterY - paddle.CenterY) / (paddle.Bounds.Height / 2f);
+        _ball.BounceOffPaddle(relativeIntersectY * _maxAngle);
     }
 
     protected void CheckPointScored()

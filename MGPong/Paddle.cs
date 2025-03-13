@@ -19,6 +19,8 @@ public class Paddle
 
     public Rectangle Bounds => _sprite.Bounds;
 
+    public float CenterY => _sprite.Center.Y;
+
     public Paddle(Rectangle playArea, Texture2D texture, int xPosition, int maxHeight)
     {
         _playArea = playArea;

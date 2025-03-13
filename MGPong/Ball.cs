@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Reflection.Metadata;
 
 namespace MGPong;
 
@@ -13,11 +14,14 @@ class Ball
     private SoundEffect _paddleHitFx;
     private SoundEffect _wallHitFx;
     private int _size;
-    private int _speed = 600;
-    private float _speedIncrease = 60f;
+    private int _speed = 500;
+    private float _speedIncrease = 50f;
     private readonly Random _rand = new Random();
 
     public Rectangle Bounds => _sprite.Bounds;
+
+    public float CenterY => _sprite.Center.Y;
+
 
     public Ball(Rectangle playArea, Texture2D texture, SoundEffect paddleHit, SoundEffect wallHit)
     {
@@ -52,9 +56,10 @@ class Ball
         _sprite.Update(gt);
     }
 
-    public void BounceOffPaddle()
+    public void BounceOffPaddle(float angle)
     {
         _sprite.ReverseXDirection();
+        _sprite.Velocity = new Vector2(MathF.Cos(angle) * _speed * MathF.Sign(_sprite.Velocity.X), MathF.Sin(angle) * _speed);
         _sprite.AdjustSpeed(_speedIncrease);
         _paddleHitFx.Play();
     }

@@ -37,7 +37,7 @@ public class TitleState : GameState
     public override void Enter()
     {
         MediaPlayer.Volume = 0.3f;
-        //MediaPlayer.Play(_titleMusic);
+        MediaPlayer.Play(_titleMusic);
         base.Enter();
     }
 
