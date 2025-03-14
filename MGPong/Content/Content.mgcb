@@ -113,11 +113,11 @@
 /processorParam:Quality=Best
 /build:SoundFx/PaddleHit.wav
 
-#begin SoundFx/PaddleHit2.wav
+#begin SoundFx/WallHit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:SoundFx/PaddleHit2.wav
+/build:SoundFx/WallHit.wav
 
 #begin SoundFx/WinPoint.wav
 /importer:WavImporter

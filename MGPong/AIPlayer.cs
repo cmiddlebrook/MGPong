@@ -22,17 +22,17 @@ public class AIPlayer : Player
 
         if (ballPos.Y < paddlePos.Y)
         {
-            _paddle.MoveUp(gt, _speed);
+            _paddle.MoveUp(gt, Speed);
         }
         else if (ballPos.Y > paddlePos.Y)
         {
-            _paddle.MoveDown(gt, _speed);
+            _paddle.MoveDown(gt, Speed);
         }
     }
 
     public void PowerUp()
     {
-        _speed += _speedIncrease;
+        Speed += _speedIncrease;
         _paddle.Grow();
     }
 

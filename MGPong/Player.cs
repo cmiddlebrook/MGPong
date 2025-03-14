@@ -8,26 +8,27 @@ namespace MGPong;
 public class Player
 {
     protected Paddle _paddle;
-    protected int _speed;
 
-    public int Speed => _speed;
+    private int _startSpeed;
+    public int Speed { get; set; }
     public int Score { get; set; }
     public Paddle Paddle => _paddle;
 
     public Player(Paddle paddle, int speed)
     {
         _paddle = paddle;
-        _speed = speed;
+        _startSpeed = speed;
+        Speed = _startSpeed;
     }
 
     public virtual void MoveUp(GameTime gt)
     {
-        _paddle.MoveUp(gt, _speed);
+        _paddle.MoveUp(gt, Speed);
     }
 
     public virtual void MoveDown(GameTime gt)
     {
-        _paddle.MoveDown(gt, _speed);
+        _paddle.MoveDown(gt, Speed);
     }
 
     public virtual void Draw(SpriteBatch sb)
@@ -37,6 +38,7 @@ public class Player
 
     public virtual void PrepForNewBall()
     {
+        Speed = _startSpeed;
         _paddle.Reset();
     }
 

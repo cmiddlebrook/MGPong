@@ -56,7 +56,7 @@ public class PongGame : Calimoe
 
         GraphicsDevice.Clear(new Color(0x10, 0x10, 0x10));
 
-        _spriteBatch.Begin();
+        _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
         _sm.Draw(_spriteBatch);
         _spriteBatch.End();
     }

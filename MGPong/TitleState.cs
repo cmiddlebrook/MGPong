@@ -26,18 +26,19 @@ public class TitleState : GameState
         _instructions = new TextObject(_am.LoadFont("Instructions"));
 
         _instructionsText += "\nYou control the left paddle, try to score points against the AI paddle,";
-        _instructionsText += "\n                 which gets better with each point scored!";
+        _instructionsText += "\n                 which gets better with each point scored";
+        _instructionsText += "\n               Red, green and blue balls give you a power up!";
         _instructionsText += "\n\n                           W - Move paddle up";
         _instructionsText += "\n                           S - Move paddle down";
         _instructionsText += "\n                           P - Pause the game";
-        _instructionsText += "\n                           ESCAPE - Return to title screen";
-        _instructionsText += "\n\n\n                       Press [SPACEBAR] to play!";
+        _instructionsText += "\n\n\n                          ESCAPE - Quit to title";
+        _instructionsText += "\n                       SPACEBAR - Start new game";
     }
 
     public override void Enter()
     {
         MediaPlayer.Volume = 0.3f;
-        MediaPlayer.Play(_titleMusic);
+        //MediaPlayer.Play(_titleMusic);
         base.Enter();
     }
 

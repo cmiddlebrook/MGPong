@@ -7,47 +7,34 @@ using System.Reflection.Metadata;
 
 namespace MGPong;
 
-class Ball
+public abstract class Ball
 {
-    private SpriteObject _sprite;
-    private Rectangle _playArea;
-    private SoundEffect _paddleHitFx;
-    private SoundEffect _wallHitFx;
-    private int _size;
-    private float _startSpeed = 400f;
-    private float _speed = 400f;
-    private float _speedIncrease = 40f;
-    private readonly Random _rand = new Random();
+    protected const float NORMAL_SPEED = 400f;
+
+    protected SpriteObject _sprite;
+    protected Rectangle _playArea;
+    protected int _size;
+    protected float _speed;
+    protected SoundEffect _wallHitFx;
+    protected readonly Random _rand = new Random();
 
     public Rectangle Bounds => _sprite.Bounds;
 
     public float CenterY => _sprite.Center.Y;
 
 
-    public Ball(Rectangle playArea, Texture2D texture, SoundEffect paddleHit, SoundEffect wallHit)
+    public Ball(Rectangle playArea, Texture2D texture, SoundEffect wallHit)
     {
-        _playArea = playArea;        
-        _paddleHitFx = paddleHit;
-        _wallHitFx = wallHit;
+        _playArea = playArea;
         _size = texture.Width;
-
-        int startX = (playArea.Width - (_size / 2)) / 2;
-        int startY = (playArea.Height - (_size / 2)) / 2;
-        _sprite = new SpriteObject(texture, new Vector2(startX, startY), getRandomVelocity(), Vector2.One);
+        _sprite = new SpriteObject(texture, GetStartPosition(), GetStartVelocity(), Vector2.One);
+        _wallHitFx = wallHit;
     }
 
-    private Vector2 getRandomVelocity()
-    {
-        Vector2 randomVelocity = new Vector2(_rand.Next(2) == 0 ? -100f : 100f, (_rand.Next(10, 50)));
-        randomVelocity.Y *= _rand.Next(2) == 0 ? 1 : -1;
-        randomVelocity.Normalize();
-        randomVelocity *= _speed;
+    protected abstract Vector2 GetStartPosition();
+    protected abstract Vector2 GetStartVelocity();
 
-        return randomVelocity;
-    }
-
-
-    public void Update(GameTime gt)
+    public virtual void Update(GameTime gt)
     {
         if (_sprite.Position.Y < _playArea.Top || _sprite.Position.Y > _playArea.Bottom - _size)
         {
@@ -57,23 +44,14 @@ class Ball
         _sprite.Update(gt);
     }
 
-    public void BounceOffPaddle(float angle)
+    public virtual void NewBall()
     {
-        _sprite.ReverseXDirection();
-        _speed += _speedIncrease;
-        //_sprite.AdjustSpeed(_speedIncrease);
-        _sprite.Velocity = new Vector2(MathF.Cos(angle) * _speed * MathF.Sign(_sprite.Velocity.X), MathF.Sin(angle) * _speed);
-        _paddleHitFx.Play();
-    }
-
-    public void NewBall()
-    {
-        _speed = _startSpeed;
+        _speed = NORMAL_SPEED;
         _sprite.Reset();
-        _sprite.Velocity = getRandomVelocity();
     }
 
-    public void Draw(SpriteBatch sb)
+
+    public virtual void Draw(SpriteBatch sb)
     {
         _sprite.Draw(sb);
     }

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
+using System.Diagnostics;
 using System.Reflection.Metadata;
 
 
@@ -20,10 +21,10 @@ public class PlayState : GameState
     private SoundEffect _winFx;
     private SoundEffect _loseFx;
     private Song _playMusic;
-    private Ball _ball;
+    private MainBall _ball;
+    private PowerBall _powerBall;
+    private bool _fastBall;
     private float _maxAngle = MathHelper.PiOver4;
-    private int _powerBallInterval = 10;
-    private float _powerBallTimer = 0f;
     private bool _paused = false;
     public PlayState(StateManager sm, AssetManager am, InputHelper ih) :base(sm, am, ih)
     {
@@ -37,24 +38,26 @@ public class PlayState : GameState
         _playMusic = _am.LoadMusic("IcecapMountains");
 
         _board = _am.LoadTexture("Board2");
-        int maxPaddleHeight = (int)(_board.Height * .40);
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
 
-        _player = new Player(new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4, maxPaddleHeight), 300);
+        _player = new Player(new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4), 300);
 
         Texture2D aiPaddleTX = _am.LoadTexture("RightPaddle");
-        Paddle aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4, maxPaddleHeight);
+        Paddle aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
         _aiPlayer = new AIPlayer(aiPaddle, 100, 25);
 
-        _ball = new Ball(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("PaddleHit"), _am.LoadSoundFx("PaddleHit2"));
-
+        _ball = new MainBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"), _am.LoadSoundFx("PaddleHit"));
+        _powerBall = new PowerBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"));
     }
 
     public override void Enter()
     {
+        _player.PrepForNewGame();
+        _aiPlayer.PrepForNewGame();
+        ServeNewBall();
         MediaPlayer.Volume = 0.2f;
-        MediaPlayer.Play(_playMusic);
+        //MediaPlayer.Play(_playMusic);
         base.Enter();
     }
     public override void HandleInput(GameTime gt)
@@ -88,6 +91,7 @@ public class PlayState : GameState
         if (!_paused)
         {
             _ball.Update(gt);
+            _powerBall.Update(gt);
             _aiPlayer.TrackBall(gt, _ball.Bounds);
             CheckPaddleCollision();
             CheckPointScored();
@@ -100,6 +104,7 @@ public class PlayState : GameState
     {
         sb.Draw(_board, _playArea, Color.White);
         _scoreBar.Draw(sb, _player.Score, _aiPlayer.Score);
+        _powerBall.Draw(sb);
         _player.Draw(sb);
         _aiPlayer.Draw(sb);
         _ball.Draw(sb);
@@ -121,11 +126,22 @@ public class PlayState : GameState
         Rectangle ballRect = _ball.Bounds;
         if (ballRect.Intersects(_player.Paddle.Bounds))
         {
+            if (_fastBall)
+            {
+                _ball.FastBall();
+            }
+            
             BounceBallOffPaddle(_player.Paddle);
         }
         else if (ballRect.Intersects(_aiPlayer.Paddle.Bounds))
         {
             BounceBallOffPaddle(_aiPlayer.Paddle);
+            _ball.RevertBallSpeed();
+        }
+
+        if (_powerBall.Bounds.Intersects(_player.Paddle.Bounds))
+        {
+            EnablePowerUp();
         }
     }
 
@@ -133,6 +149,33 @@ public class PlayState : GameState
     {
         float relativeIntersectY = (_ball.CenterY - paddle.CenterY) / (paddle.Bounds.Height / 2f);
         _ball.BounceOffPaddle(relativeIntersectY * _maxAngle);
+    }
+
+    protected void EnablePowerUp()
+    {
+        switch (_powerBall.Type)
+        {
+            case PowerBall.BallType.BigPaddle:
+                {
+                    _player.Paddle.Grow(true);
+                    break;
+                }
+
+            case PowerBall.BallType.FastPaddle:
+                {
+                    _player.Speed = 800;
+                    break;
+                }
+
+            case PowerBall.BallType.FastBall:
+                {
+                    _fastBall = true;
+                    break;
+                }
+
+        }
+        _powerBall.CyclePowerBall();
+        _powerBall.NewBall();
     }
 
     protected void CheckPointScored()
@@ -156,9 +199,11 @@ public class PlayState : GameState
 
     protected void ServeNewBall()
     {
+        _fastBall = false;
         _player.PrepForNewBall();
         _aiPlayer.PrepForNewBall();
         _ball.NewBall();
+        _powerBall.NewBall();
     }
 
 }
