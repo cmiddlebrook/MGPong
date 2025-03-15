@@ -28,22 +28,22 @@ public class TitleState : GameState
 
         _titleText = new TextObject(_am.LoadFont("Title"));
         _instructions = new TextObject(_am.LoadFont("Instructions"));
-        _instructionsText += "You control the left paddle, try to score points against the AI paddle,";
-        _instructionsText += "\n                 which gets better with each point scored";
-        _instructionsText += "\n\n                           W - Move paddle up";
-        _instructionsText += "\n                           S - Move paddle down";
-        _instructionsText += "\n                           P - Pause the game";
-        _instructionsText += "\n\n                              Big paddle";
-        _instructionsText += "\n                              Fast paddle";
-        _instructionsText += "\n                              Fast ball";
-        _instructionsText += "\n\n\n                          ESCAPE - Quit to title";
-        _instructionsText += "\n                       SPACEBAR - Start new game";
+        _instructionsText += "You control the left paddle, the AI paddle starts weak,";
+        _instructionsText += "\n       but gets stronger with each point scored";
+        _instructionsText += "\n\n                      W - Move paddle up";
+        _instructionsText += "\n                      S - Move paddle down";
+        _instructionsText += "\n                      P - Pause the game";
+        _instructionsText += "\n\n                         Big paddle";
+        _instructionsText += "\n                         Fast paddle";
+        _instructionsText += "\n                         Fast ball";
+        _instructionsText += "\n\n                     ESCAPE - Quit to title";
+        _instructionsText += "\n                  SPACEBAR - Start new game";
 
-        _pbBigPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 410), Vector2.Zero, Vector2.One * 1.5f);
+        _pbBigPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(385, 360), Vector2.Zero, Vector2.One * 1.5f);
         _pbBigPaddle.Colour = _ballData.GetColour(PowerBallData.BallType.BigPaddle);
-        _pbFastPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 445), Vector2.Zero, Vector2.One * 1.5f);
+        _pbFastPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(385, 395), Vector2.Zero, Vector2.One * 1.5f);
         _pbFastPaddle.Colour = _ballData.GetColour(PowerBallData.BallType.FastPaddle);
-        _pbFastBall = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 480), Vector2.Zero, Vector2.One * 1.5f);
+        _pbFastBall = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(385, 430), Vector2.Zero, Vector2.One * 1.5f);
         _pbFastBall.Colour = _ballData.GetColour(PowerBallData.BallType.FastBall);
     }
 
@@ -72,8 +72,8 @@ public class TitleState : GameState
 
     public override void Draw(SpriteBatch sb)
     {
-        _titleText.DrawText(sb, "MG Pong", TextObject.CenterText.Horizontal, 50);
-        _instructions.DrawText(sb, _instructionsText, TextObject.CenterText.Horizontal, 150);
+        _titleText.DrawText(sb, "MG Pong", TextObject.CenterText.Horizontal, 30);
+        _instructions.DrawText(sb, _instructionsText, TextObject.CenterText.Horizontal, 100);
         _pbBigPaddle.Draw(sb);
         _pbFastPaddle.Draw(sb);
         _pbFastBall.Draw(sb);

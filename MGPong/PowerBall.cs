@@ -22,8 +22,8 @@ public class PowerBall : Ball
     public PowerBall(Rectangle playArea, Texture2D texture, SoundEffect wallHit, PowerBallData ballData)
         : base(playArea, texture, wallHit)
     {
-        _speed = 250f;
-        _interval = TimeSpan.FromSeconds(5);
+        _speed = 350f;
+        _interval = TimeSpan.FromSeconds(6);
         _ballData = ballData;
         _sprite = new SpriteObject(texture, GetStartPosition(), GetStartVelocity(), Vector2.One * 1.5f);
         _ballPool =  (BallType[])Enum.GetValues(typeof(BallType));

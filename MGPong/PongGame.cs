@@ -52,7 +52,6 @@ public class PongGame : Calimoe
 
         base.Update(gt);
         _sm.Update(gt);
-
     }
 
 

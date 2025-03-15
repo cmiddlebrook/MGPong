@@ -12,7 +12,8 @@ public class MainBall : Ball
     protected const float FAST_SPEED = 2500f;
 
     protected SoundEffect _paddleHitFx;
-    protected float _speedIncrease = 40f;
+    protected float _previousSpeed;
+    protected float _speedIncrease = 50f;
 
     public MainBall(Rectangle playArea, Texture2D texture, SoundEffect wallHit, SoundEffect paddleHit)
         : base(playArea, texture, wallHit)
@@ -38,25 +39,25 @@ public class MainBall : Ball
 
     public void FastBall()
     {
+        _previousSpeed = _speed;
         _speed = FAST_SPEED;
     }
 
     public void RevertBallSpeed()
     {
-        _speed = NORMAL_SPEED;
+        _speed = _previousSpeed;
     }
 
     public override void NewBall()
     {
-        RevertBallSpeed();
+        _speed = NORMAL_SPEED;
         _sprite.Reset();
         _sprite.Velocity = GetStartVelocity();
     }
-    public void BounceOffPaddle(float angle)
+    public void BounceOffPaddle()
     {
         _sprite.ReverseXDirection();
         _speed += _speedIncrease;
-        _sprite.Velocity = new Vector2(MathF.Cos(angle) * _speed * MathF.Sign(_sprite.Velocity.X), MathF.Sin(angle) * _speed);
         _paddleHitFx.Play();
     }
 }

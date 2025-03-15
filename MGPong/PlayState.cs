@@ -25,7 +25,6 @@ public class PlayState : GameState
     private PowerBallData _ballData;
     private PowerBall _powerBall;
     private bool _fastBall;
-    private float _maxAngle = MathHelper.PiOver4;
     private bool _paused = false;
     public PlayState(StateManager sm, AssetManager am, InputHelper ih, PowerBallData ballData) : base(sm, am, ih)
     {
@@ -39,15 +38,15 @@ public class PlayState : GameState
         _loseFx = _am.LoadSoundFx("LosePoint");
         _playMusic = _am.LoadMusic("IcecapMountains");
 
-        _board = _am.LoadTexture("Board2");
+        _board = _am.LoadTexture("Board3");
         _scoreBar = new ScoreBar(_am.LoadTexture("ScoreBar"), _am.LoadFont("Score"), _board.Width);
         _playArea = new Rectangle(0, _scoreBar.Height, _board.Width, _board.Height);
 
-        _player = new Player(new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4), 300);
+        _player = new Player(new Paddle(_playArea, _am.LoadTexture("LeftPaddle"), 4), 350);
 
         Texture2D aiPaddleTX = _am.LoadTexture("RightPaddle");
         Paddle aiPaddle = new Paddle(_playArea, aiPaddleTX, _playArea.Width - aiPaddleTX.Width - 4);
-        _aiPlayer = new AIPlayer(aiPaddle, 100, 25);
+        _aiPlayer = new AIPlayer(aiPaddle, 150, 30);
 
         _ball = new MainBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"), _am.LoadSoundFx("PaddleHit"));
         _powerBall = new PowerBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"), _ballData);
@@ -55,8 +54,6 @@ public class PlayState : GameState
 
     public override void Enter()
     {
-        _player.PrepForNewGame();
-        _aiPlayer.PrepForNewGame();
         ServeNewBall();
         MediaPlayer.Volume = 0.2f;
         //MediaPlayer.Play(_playMusic);
@@ -66,17 +63,20 @@ public class PlayState : GameState
     {
         base.HandleInput(gt);
 
-        if (_ih.KeyDown(Keys.W))
+        if ((!_paused))
         {
-            _player.MoveUp(gt);
+            if (_ih.KeyDown(Keys.W))
+            {
+                _player.MoveUp(gt);
+            }
+
+            else if (_ih.KeyDown(Keys.S))
+            {
+                _player.MoveDown(gt);
+            }
         }
 
-        else if (_ih.KeyDown(Keys.S))
-        {
-            _player.MoveDown(gt);
-        }
-
-        else if (_ih.KeyPressed(Keys.P))
+        if (_ih.KeyPressed(Keys.P))
         {
             _paused = !_paused;
         }
@@ -88,18 +88,17 @@ public class PlayState : GameState
 
     public override void Update(GameTime gt)
     {
+        base.Update(gt);
         HandleInput(gt);
 
         if (!_paused)
         {
             _ball.Update(gt);
-            _powerBall.Update(gt);
-            _aiPlayer.TrackBall(gt, _ball.Bounds);
             CheckPaddleCollision();
             CheckPointScored();
+            _powerBall.Update(gt);
+            _aiPlayer.TrackBall(gt, _ball.Bounds);
         }
-
-        base.Update(gt);
     }
 
     public override void Draw(SpriteBatch sb)
@@ -132,12 +131,12 @@ public class PlayState : GameState
             {
                 _ball.FastBall();
             }
-            
-            BounceBallOffPaddle(_player.Paddle);
+
+            _ball.BounceOffPaddle();
         }
         else if (ballRect.Intersects(_aiPlayer.Paddle.Bounds))
         {
-            BounceBallOffPaddle(_aiPlayer.Paddle);
+            _ball.BounceOffPaddle();
             _ball.RevertBallSpeed();
         }
 
@@ -147,11 +146,6 @@ public class PlayState : GameState
         }
     }
 
-    protected void BounceBallOffPaddle(Paddle paddle)
-    {
-        float relativeIntersectY = (_ball.CenterY - paddle.CenterY) / (paddle.Bounds.Height / 2f);
-        _ball.BounceOffPaddle(relativeIntersectY * _maxAngle);
-    }
 
     protected void EnablePowerUp()
     {
@@ -165,7 +159,7 @@ public class PlayState : GameState
 
             case PowerBallData.BallType.FastPaddle:
                 {
-                    _player.Speed = 800;
+                    _player.Speed = 900;
                     break;
                 }
 

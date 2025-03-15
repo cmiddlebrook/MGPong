@@ -9,7 +9,7 @@ namespace MGPong;
 
 public abstract class Ball
 {
-    protected const float NORMAL_SPEED = 400f;
+    protected const float NORMAL_SPEED = 500f;
 
     protected SpriteObject _sprite;
     protected Rectangle _playArea;
