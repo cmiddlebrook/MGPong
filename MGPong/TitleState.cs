@@ -14,6 +14,7 @@ public class TitleState : GameState
     private string _instructionsText;
     private Song _titleMusic;
     private PowerBallData _ballData;
+    private SpriteObject _pbBigPaddle, _pbFastPaddle, _pbFastBall;
 
     public TitleState(StateManager sm, AssetManager am, InputHelper ih, PowerBallData ballData) :base(sm, am, ih)
 	{
@@ -24,17 +25,26 @@ public class TitleState : GameState
     public override void LoadContent()
     {
         _titleMusic = _am.LoadMusic("NaturalLife");
+
         _titleText = new TextObject(_am.LoadFont("Title"));
         _instructions = new TextObject(_am.LoadFont("Instructions"));
-
-        _instructionsText += "\nYou control the left paddle, try to score points against the AI paddle,";
+        _instructionsText += "You control the left paddle, try to score points against the AI paddle,";
         _instructionsText += "\n                 which gets better with each point scored";
-        _instructionsText += "\n               Red, green and blue balls give you a power up!";
         _instructionsText += "\n\n                           W - Move paddle up";
         _instructionsText += "\n                           S - Move paddle down";
         _instructionsText += "\n                           P - Pause the game";
+        _instructionsText += "\n\n                              Big paddle";
+        _instructionsText += "\n                              Fast paddle";
+        _instructionsText += "\n                              Fast ball";
         _instructionsText += "\n\n\n                          ESCAPE - Quit to title";
         _instructionsText += "\n                       SPACEBAR - Start new game";
+
+        _pbBigPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 410), Vector2.Zero, Vector2.One * 1.5f);
+        _pbBigPaddle.Colour = _ballData.GetColour(PowerBallData.BallType.BigPaddle);
+        _pbFastPaddle = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 445), Vector2.Zero, Vector2.One * 1.5f);
+        _pbFastPaddle.Colour = _ballData.GetColour(PowerBallData.BallType.FastPaddle);
+        _pbFastBall = new SpriteObject(_am.LoadTexture("WhiteBall"), new Vector2(460, 480), Vector2.Zero, Vector2.One * 1.5f);
+        _pbFastBall.Colour = _ballData.GetColour(PowerBallData.BallType.FastBall);
     }
 
     public override void Enter()
@@ -64,6 +74,10 @@ public class TitleState : GameState
     {
         _titleText.DrawText(sb, "MG Pong", TextObject.CenterText.Horizontal, 50);
         _instructions.DrawText(sb, _instructionsText, TextObject.CenterText.Horizontal, 150);
+        _pbBigPaddle.Draw(sb);
+        _pbFastPaddle.Draw(sb);
+        _pbFastBall.Draw(sb);
+
         base.Draw(sb);
     }
 }
