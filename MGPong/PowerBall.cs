@@ -3,32 +3,31 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using static MGPong.PowerBallData;
 
 namespace MGPong;
 
 public class PowerBall : Ball
 {
-    public enum BallType
-    {
-        FastBall,
-        BigPaddle,
-        FastPaddle,
-    }
-
-    private BallType[] _ballPool = (BallType[])Enum.GetValues(typeof(BallType));
-    private int _currentBall = 1;
+    private PowerBallData _ballData;
+    private PowerBallData.BallType[] _ballPool;
+    private int _currentBallIndex;
     private TimeSpan _timer;
     private TimeSpan _interval;
     bool _inPlay = false;
 
-    public BallType Type => _ballPool[_currentBall];
-    public PowerBall(Rectangle playArea, Texture2D texture, SoundEffect wallHit)
+    public BallType Type => _ballPool[_currentBallIndex];
+    public PowerBall(Rectangle playArea, Texture2D texture, SoundEffect wallHit, PowerBallData ballData)
         : base(playArea, texture, wallHit)
     {
         _speed = 250f;
         _interval = TimeSpan.FromSeconds(5);
+        _ballData = ballData;
         _sprite = new SpriteObject(texture, GetStartPosition(), GetStartVelocity(), Vector2.One * 1.5f);
+        _ballPool =  (BallType[])Enum.GetValues(typeof(BallType));
+
         NewBall();
     }
 
@@ -57,23 +56,6 @@ public class PowerBall : Ball
         return randomVelocity;
     }
 
-    private void SetBallColour()
-    {
-        switch (Type)
-        {
-            case BallType.FastBall:
-                _sprite.Colour = new Color(255, 50, 50) * 0.7f; // red
-                break;
-
-            case BallType.BigPaddle:
-                _sprite.Colour = new Color(57, 255, 20) * 0.7f; // green
-                break;
-
-            case BallType.FastPaddle:
-                _sprite.Colour = new Color(4, 118, 208) * 0.8f; // blue
-                break;
-        }
-    }
     public override void Update(GameTime gt)
     {
         _timer += gt.ElapsedGameTime;
@@ -102,16 +84,18 @@ public class PowerBall : Ball
 
     public void CyclePowerBall()
     {
-        _currentBall = (_currentBall + 1) % _ballPool.Length;
+        _currentBallIndex = (_currentBallIndex + 1) % _ballPool.Length;
+        PowerBallData.BallType currentType = _ballPool[_currentBallIndex];
+        _sprite.Colour = _ballData.GetColour(currentType);
     }
     public override void NewBall()
     {
+        CyclePowerBall();
         _inPlay = false;
         _timer = TimeSpan.Zero;
         _sprite.Reset();
         _sprite.Position = GetStartPosition();
         _sprite.Velocity = GetRandomVelocity();
-        SetBallColour();
     }
 
 

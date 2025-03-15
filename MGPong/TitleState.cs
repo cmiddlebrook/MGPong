@@ -13,10 +13,12 @@ public class TitleState : GameState
     private TextObject _instructions;
     private string _instructionsText;
     private Song _titleMusic;
+    private PowerBallData _ballData;
 
-    public TitleState(StateManager sm, AssetManager am, InputHelper ih) :base(sm, am, ih)
+    public TitleState(StateManager sm, AssetManager am, InputHelper ih, PowerBallData ballData) :base(sm, am, ih)
 	{
         _name = "Title";
+        _ballData = ballData;
 	}
 
     public override void LoadContent()

@@ -22,13 +22,15 @@ public class PlayState : GameState
     private SoundEffect _loseFx;
     private Song _playMusic;
     private MainBall _ball;
+    private PowerBallData _ballData;
     private PowerBall _powerBall;
     private bool _fastBall;
     private float _maxAngle = MathHelper.PiOver4;
     private bool _paused = false;
-    public PlayState(StateManager sm, AssetManager am, InputHelper ih) :base(sm, am, ih)
+    public PlayState(StateManager sm, AssetManager am, InputHelper ih, PowerBallData ballData) : base(sm, am, ih)
     {
         _name = "Play";
+        _ballData = ballData;
     }
 
     public override void LoadContent()
@@ -48,7 +50,7 @@ public class PlayState : GameState
         _aiPlayer = new AIPlayer(aiPaddle, 100, 25);
 
         _ball = new MainBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"), _am.LoadSoundFx("PaddleHit"));
-        _powerBall = new PowerBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"));
+        _powerBall = new PowerBall(_playArea, _am.LoadTexture("WhiteBall"), _am.LoadSoundFx("WallHit"), _ballData);
     }
 
     public override void Enter()
@@ -155,26 +157,25 @@ public class PlayState : GameState
     {
         switch (_powerBall.Type)
         {
-            case PowerBall.BallType.BigPaddle:
+            case PowerBallData.BallType.BigPaddle:
                 {
                     _player.Paddle.Grow(true);
                     break;
                 }
 
-            case PowerBall.BallType.FastPaddle:
+            case PowerBallData.BallType.FastPaddle:
                 {
                     _player.Speed = 800;
                     break;
                 }
 
-            case PowerBall.BallType.FastBall:
+            case PowerBallData.BallType.FastBall:
                 {
                     _fastBall = true;
                     break;
                 }
 
         }
-        _powerBall.CyclePowerBall();
         _powerBall.NewBall();
     }
 

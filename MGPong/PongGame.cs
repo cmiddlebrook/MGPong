@@ -10,6 +10,9 @@ namespace MGPong;
 
 public class PongGame : Calimoe
 {    
+    private PowerBallData _powerBallData;
+    private TitleState _titleState;
+    private PlayState _playState;
 
     public PongGame()
     {
@@ -18,6 +21,10 @@ public class PongGame : Calimoe
         MediaPlayer.IsRepeating = true;
         _showFPS = false;
         _fallbackTextureSize = 64;
+
+        _powerBallData = new PowerBallData();
+        _titleState = new TitleState(_sm, _am, _ih, _powerBallData);
+        _playState = new PlayState(_sm, _am, _ih, _powerBallData);
     }
 
 
@@ -25,13 +32,12 @@ public class PongGame : Calimoe
     {
         base.LoadContent();
 
-        _sm.AddState(new TitleState(_sm, _am, _ih));
-        PlayState play = new PlayState(_sm, _am, _ih);
-        _sm.AddState(play);
+        _sm.AddState(_titleState);
+        _sm.AddState(_playState);
         _sm.SwitchState("Title");
 
-        _graphics.PreferredBackBufferWidth = play.getWindowWidth();
-        _graphics.PreferredBackBufferHeight = play.getWindowHeight();
+        _graphics.PreferredBackBufferWidth = _playState.getWindowWidth();
+        _graphics.PreferredBackBufferHeight = _playState.getWindowHeight();
         _graphics.ApplyChanges();
     }
 
